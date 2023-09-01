@@ -3,8 +3,7 @@
 Main file
 """
 from typing import List
-import re
-import logging
+import re, logging, mysql.connector, os
 
 
 PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'ip')
@@ -41,3 +40,19 @@ def get_logger() -> logging.Logger:
     logger.propagate = False
     logger.addHandler(stream_handler)
     return logger
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """create database """
+    host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    name = os.getenv("PERSONAL_DATA_DB_NAME", "")
+    user = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    pwd = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
+    
+    connection = mysql.connector.connect(
+        host=host,
+        port=3306,
+        user=user,
+        password=pwd,
+        database=name        
+    )
+    return connection
