@@ -3,10 +3,15 @@
 Main file
 """
 from typing import List
-import re, logging, mysql.connector, os
+import re
+import logging
+import mysql.connector
+import os
 
 
 PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'password')
+
+
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
         """
@@ -26,12 +31,11 @@ class RedactingFormatter(logging.Formatter):
         return super().format(record)
 
 
-
 def filter_datum(fields: List[str], redaction: str,
-                 message: str, separator: str) -> str :
+                 message: str, separator: str) -> str:
     """ filter datum"""
     return re.sub(r'(?P<field>{})=[^{}]*'.format('|'.join(fields), separator),
-                   r'\g<field>={}'.format(redaction), message)
+                  r'\g<field>={}'.format(redaction), message)
 
 
 def get_logger() -> logging.Logger:
