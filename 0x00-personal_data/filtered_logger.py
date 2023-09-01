@@ -6,7 +6,7 @@ from typing import List
 import re, logging, mysql.connector, os
 
 
-PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'ip')
+PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'password')
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
         """
@@ -56,3 +56,21 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         database=name        
     )
     return connection
+
+def main():
+    """ main """
+    query = "SELECT {} FROM users;".format(PII_FIELDS)
+    info = get_logger()
+    db_conn = get_db()
+    with db_conn.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        for row in rows:
+            record = map(
+                lambda x: '{}={}'.format(x[0], x[1]),
+                zip(PII_FIELDS, row)
+            )
+            msg = '{};'.format('; '.join(list(record)))
+            args = ("user_data", logging.INFO, None, None, msg, None, None)
+            log_record = logging.LogRecord(*args)
+            info.handle(log_record)
