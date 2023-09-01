@@ -25,11 +25,14 @@ class RedactingFormatter(logging.Formatter):
                                   self.REDACTION, record.msg, self.SEPARATOR)
         return super().format(record)
 
+
+
 def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str :
     """ filter datum"""
     return re.sub(r'(?P<field>{})=[^{}]*'.format('|'.join(fields), separator),
                    r'\g<field>={}'.format(redaction), message)
+
 
 def get_logger() -> logging.Logger:
     """ get logger"""
@@ -41,21 +44,22 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
     return logger
 
+
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """create database """
-    host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
-    name = os.getenv("PERSONAL_DATA_DB_NAME", "")
-    user = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
-    pwd = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
-    
+    db_host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    db_name = os.getenv("PERSONAL_DATA_DB_NAME", "")
+    db_user = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    db_pwd = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
     connection = mysql.connector.connect(
-        host=host,
+        host=db_host,
         port=3306,
-        user=user,
-        password=pwd,
-        database=name        
+        user=db_user,
+        password=db_pwd,
+        database=db_name,
     )
     return connection
+
 
 def main():
     """ main """
