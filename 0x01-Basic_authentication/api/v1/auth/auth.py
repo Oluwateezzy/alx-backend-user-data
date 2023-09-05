@@ -12,11 +12,15 @@ class Auth:
         """ require auth """
         if path is None or excluded_paths is None or len(excluded_paths) == 0:
             return True
-        if path in excluded_paths:
-            return False
-        normalize_path = path.rstrip('/')
-        normalize_list = [n_list.rstrip('/') for n_list in excluded_paths]
-        return normalize_path not in normalize_list
+        for pattern in excluded_paths:
+            if pattern.endswith('*'):
+                pattern = pattern[:-1]
+                if path.startswith(pattern):
+                    return False
+            elif path == pattern:
+                return False
+        return True
+        
 
     def authorization_header(self, request=None) -> str:
         """ authorization header """
