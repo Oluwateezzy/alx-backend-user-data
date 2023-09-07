@@ -24,15 +24,20 @@ else:
     from api.v1.auth.auth import Auth
     auth = Auth()
 
+
 @app.before_request
 def beforeRequest() -> None:
     """ before request """
+    excluded_path = ['/api/v1/status/',
+                     '/api/v1/unauthorized/',
+                     '/api/v1/forbidden/']
     if auth:
-        if auth.require_auth(request.path, ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']):
+        if auth.require_auth(request.path, excluded_path):
             if auth.authorization_header(request) is None:
                 abort(401)
             if auth.current_user(request) is None:
                 abort(403)
+
 
 @app.errorhandler(404)
 def not_found(error) -> str:
@@ -40,10 +45,12 @@ def not_found(error) -> str:
     """
     return jsonify({"error": "Not found"}), 404
 
+
 @app.errorhandler(401)
 def unauthorized(error):
     """ Unauthorized error """
     return jsonify({"error": "Unauthorized"}), 401
+
 
 @app.errorhandler(403)
 def forbidden(error):
