@@ -4,6 +4,7 @@
 from flask import request
 from api.v1.auth.auth import Auth
 from uuid import uuid4
+from models.models.user import User
 
 
 class SessionAuth(Auth):
@@ -29,3 +30,9 @@ class SessionAuth(Auth):
         if type(session_id) != str:
             return None
         return self.user_id_by_session_id.get(session_id)
+    
+    def current_user(self, request=None):
+        """ return the user id base on the cookies """
+        sessionCookie = self.session_cookie(request)
+        sessionId = self.user_id_for_session_id(sessionCookie)
+        return User.get(sessionId)
