@@ -6,6 +6,7 @@ from flask import abort, jsonify, request
 from models.user import User
 from api.v1.auth.session_auth import SessionAuth
 from os import getenv
+import Typing
 
 
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
