@@ -41,7 +41,7 @@ class SessionAuth(Auth):
         """ destroy session """
         if request is None:
             return False
-        if not request.headers.get("Cookie").startswith("_my_session_id="):
+        if not request.headers.get("Cookie"):
             return False
         session = request.headers.get("Cookie").split("=")
         print(session[1])
