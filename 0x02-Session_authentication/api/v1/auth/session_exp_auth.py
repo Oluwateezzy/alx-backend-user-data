@@ -9,8 +9,10 @@ from datetime import datetime, timedelta
 class SessionExpAuth(SessionAuth):
     """ session expiration """
     def __init__(self) -> None:
-        env = getenv("SESSION_DURATION")
-        self.session_duration = int(env) if env else 0
+        try:
+            self.session_duration = int(getenv('SESSION_DURATION'))
+        except Exception:
+            self.session_duration = 0
 
     def create_session(self, user_id=None):
         """ create session """
@@ -30,6 +32,7 @@ class SessionExpAuth(SessionAuth):
                 return None
             if session_id not in self.user_id_by_session_id:
                 return None
+            print(session_id)
             session_dict = self.user_id_by_session_id[session_id]
             if session_dict["created_at"] is None:
                 return None
@@ -37,6 +40,7 @@ class SessionExpAuth(SessionAuth):
                 return session_dict["user_id"]
             created_at = session_dict["created_at"]
             exp = timedelta(seconds=self.session_duration) + created_at
+            print(exp, created_at)
             if exp < datetime.now():
                 return None
             else:

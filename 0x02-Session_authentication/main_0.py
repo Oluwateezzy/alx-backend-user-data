@@ -6,12 +6,13 @@ import base64
 from time import sleep
 
 if __name__ == "__main__":
-    user_email = "u14@hbtn.io"
-    user_pwd = "pwd14"
+    user_email = "bobsession@hbtn.io"
+    user_pwd = "fake pwd"
     
     r = requests.post('http://127.0.0.1:5000/api/v1/auth_session/login', data={ 'email': user_email, 'password': user_pwd })
+    print(r)
     if r.status_code != 200:
-        print("Wrong status code: {}".format(r.status_code))
+        print("Wrong status codess: {}".format(r.status_code))
         exit(1)
     if r.headers.get('content-type') != "application/json":
         print("Wrong content type: {}".format(r.headers.get('content-type')))
@@ -39,8 +40,9 @@ if __name__ == "__main__":
             
         """ Request Me = fail """
         r_user_me = requests.get('http://127.0.0.1:5000/api/v1/users/me', cookies={ '_my_session_id': cookie_session_id })
+        print(r_user_me)
         if r_user_me.status_code != 403:
-            print("Wrong status code: {}".format(r_user_me.status_code))
+            print("Wrong status codes: {}".format(r_user_me.status_code))
             exit(1)
         if r_user_me.headers.get('content-type') != "application/json":
             print("Wrong content type: {}".format(r_user_me.headers.get('content-type')))
