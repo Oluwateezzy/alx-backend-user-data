@@ -25,16 +25,19 @@ class SessionExpAuth(SessionAuth):
 
     def user_id_for_session_id(self, session_id=None):
         """ user id for session """
-        if session_id is None:
-            return None
-        if session_id not in self.user_id_by_session_id:
-            return None
-        session_dict = self.user_id_by_session_id[session_id]
-        if self.session_duration <= 0:
+        try:
+            if session_id is None:
+                return None
+            if session_id not in self.user_id_by_session_id:
+                return None
+            session_dict = self.user_id_by_session_id[session_id]
+            if session_dict["created_at"] is None:
+                return None
+            if self.session_duration <= 0:
+                return session_dict["user_id"]
+            created_at = session_dict["created_at"].timestamp()
+            if created_at + self.session_duration < datetime.now().timestamp():
+                return None
             return session_dict["user_id"]
-        if not session_dict["created_at"]:
+        except Exception:
             return None
-        created_at = session_dict["created_at"].timestamp()
-        if created_at + self.session_duration < datetime.now().timestamp():
-            return None
-        return session_dict["user_id"]
