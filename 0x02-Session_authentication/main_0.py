@@ -1,35 +1,65 @@
 #!/usr/bin/python3
 """ Check response
 """
+import requests
+import base64
+from time import sleep
 
 if __name__ == "__main__":
+    user_email = "u14@hbtn.io"
+    user_pwd = "pwd14"
+    
+    r = requests.post('http://127.0.0.1:5000/api/v1/auth_session/login', data={ 'email': user_email, 'password': user_pwd })
+    if r.status_code != 200:
+        print("Wrong status code: {}".format(r.status_code))
+        exit(1)
+    if r.headers.get('content-type') != "application/json":
+        print("Wrong content type: {}".format(r.headers.get('content-type')))
+        exit(1)
+    
     try:
-        from api.v1.auth.session_exp_auth import SessionExpAuth
-        sea = SessionExpAuth()
-        user_id = "User1"
-        session_id = sea.create_session(user_id)
-        if session_id is None:
-            print("create_session should return a Session ID if user_id is valid")
-            exit(1)
-        session_info = sea.user_id_by_session_id.get(session_id)
-        if session_info is None:
-            print("create_session should create a dictionary linked to the session ID")
-            exit(1)
-        if session_info.get('created_at') is None:
-            print("create_session should create a dictionary linked to the session ID with created_at")
+        r_json = r.json()
+        
+        r_user_email = r_json.get('email')
+        if r_user_email is None:
+            print("User is not return")
             exit(1)
 
-        # delete created_at
-        del session_info['created_at']
-        sea.user_id_by_session_id[session_id] = session_info
+        if r_user_email != user_email:
+            print("User returned is not the same: {}".format(r_json))
+            exit(1)
+        user_id = r_json.get('id')
 
-        user_id_r = sea.user_id_for_session_id(session_id)
-        print(user_id_r)
-        if user_id_r is not None:
-            print("user_id_for_session_id should return None if the created_at is None")
+        cookie_session_id = r.cookies.get('_my_session_id')
+        if cookie_session_id is None:
+            print("No cookie _my_session_id returned")
+            exit(1)
+
+        sleep(10)
+            
+        """ Request Me = fail """
+        r_user_me = requests.get('http://127.0.0.1:5000/api/v1/users/me', cookies={ '_my_session_id': cookie_session_id })
+        if r_user_me.status_code != 403:
+            print("Wrong status code: {}".format(r_user_me.status_code))
+            exit(1)
+        if r_user_me.headers.get('content-type') != "application/json":
+            print("Wrong content type: {}".format(r_user_me.headers.get('content-type')))
             exit(1)
         
+        r_user_me_json = r_user_me.json()
+        
+        if len(r_user_me_json.keys()) != 1:
+            print("Not the right number of element in the JSON: {}".format(r_user_me_json))
+            exit(1)
+        
+        error_value = r_user_me_json.get('error')
+        if error_value is None:
+            print("Missing 'error' key in the JSON: {}".format(r_user_me_json))
+            exit(1)
+        if error_value != "Forbidden":
+            print("'error' doesn't have the right value: {}".format(error_value))
+            exit(1)
+                
         print("OK", end="")
     except:
-        import sys
-        print("Error: {}".format(sys.exc_info()))
+        print("Error, not a JSON")
