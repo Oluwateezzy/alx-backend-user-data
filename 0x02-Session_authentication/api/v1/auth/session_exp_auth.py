@@ -3,7 +3,7 @@
 """
 from api.v1.auth.session_auth import SessionAuth
 from os import getenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class SessionExpAuth(SessionAuth):
@@ -35,8 +35,9 @@ class SessionExpAuth(SessionAuth):
                 return None
             if self.session_duration <= 0:
                 return session_dict["user_id"]
-            created_at = session_dict["created_at"].timestamp()
-            if created_at + self.session_duration < datetime.now().timestamp():
+            created_at = session_dict["created_at"]
+            exp = timedelta(seconds=self.session_duration) + created_at
+            if exp < datetime.now():
                 del session_dict[session_id]
                 return None
             return session_dict["user_id"]
