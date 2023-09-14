@@ -29,7 +29,7 @@ class Auth:
     def __init__(self):
         """ initialize """
         self._db = DB()
-    
+
     def register_user(self, email: str, password: str) -> User:
         """ Register User """
         try:
@@ -49,7 +49,7 @@ class Auth:
             )
         except NoResultFound:
             return False
-    
+
     def create_session(self, email: str) -> str:
         """create session """
         try:
@@ -71,7 +71,7 @@ class Auth:
             return user
         except NoResultFound:
             return None
-    
+
     def destroy_session(self, user_id: str) -> None:
         """ destry session """
         if not user_id:
@@ -81,7 +81,7 @@ class Auth:
             self._db.update_user(user, session_id=None)
         except NoResultFound:
             return None
-    
+
     def get_reset_password_token(self, email: str) -> str:
         """ get reset password token """
         try:
@@ -91,14 +91,14 @@ class Auth:
         token = _generate_uuid()
         self._db.update_user(user.id, reset_token=token)
         return token
-    
+
     def update_password(
         self, reset_token: str, password: str
     ) -> None:
         """ update password """
         if not reset_token and not password:
             return None
-        
+
         try:
             user = self._db.find_user_by(reset_token=reset_token)
         except NoResultFound:

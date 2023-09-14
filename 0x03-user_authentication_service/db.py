@@ -40,7 +40,7 @@ class DB:
         self._session.add(new_user)
         self._session.commit()
         return new_user
-    
+
     def find_user_by(self, **kwargs) -> User:
         """ Find user """
         try:
@@ -50,7 +50,7 @@ class DB:
         if record is None:
             raise NoResultFound
         return record
-    
+
     def update_user(self, user_id: int, **kwargs) -> None:
         """ Update user """
         user_record = self.find_user_by(id=user_id)
@@ -61,4 +61,3 @@ class DB:
                 raise ValueError
         self._session.commit()
         return None
-    
