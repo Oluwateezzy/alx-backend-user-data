@@ -6,6 +6,7 @@ from bcrypt import hashpw, gensalt, checkpw
 from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
+from typing import Union
 
 from db import DB
 from user import User
@@ -58,5 +59,36 @@ class Auth:
         id = _generate_uuid()
         self._db.update_user(user.id, session_id=id)
         return id
+
+    def get_user_from_session_id(
+        self, session_id: str
+    ) -> Union[str, None]:
+        """get user from session id """
+        if not session_id:
+            return None
+        try:
+            user = self._db.find_user_by(session_id=session_id)
+            return user
+        except NoResultFound:
+            return None
     
-    def 
+    def destroy_session(self, user_id: str) -> None:
+        """ destry session """
+        if not user_id:
+            return None
+        try:
+            user = self._db.find_user_by(id=user_id)
+            self._db.update_user(user, session_id=None)
+        except NoResultFound:
+            return None
+    
+    def get_reset_password_token(self, email: str) -> str:
+        """ get reset password token """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError
+        token = _generate_uuid()
+        self._db.update_user(user.id, reset_token=token)
+        return token
+        
